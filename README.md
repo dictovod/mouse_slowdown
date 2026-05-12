@@ -1,3 +1,12 @@
+Инструкция:  
+Полностью скопируйте этот блок (от $ErrorActionPreference до последней строки).  
+Вставьте в окно PowerShell и нажмите Enter.  
+Дождитесь компиляции и запуска.  
+Нажимайте клавиши громкости – в консоли появится либо RAW KEYBOARD, либо RAW HID (Consumer), и после двойного нажатия будет изменяться скорость мыши.  
+Если клавиши по-прежнему не отображаются, временно закройте все утилиты производителя клавиатуры (например, Logitech Options, Razer Synapse), которые могут перехватывать мультимедийные клавиши.  
+
+
+
 # Mouse Slowdown Toggle with AppsKey
 
 This Python script allows you to **temporarily slow down your mouse movement** by pressing the `AppsKey` (context menu key) on your keyboard.  
