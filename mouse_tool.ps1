@@ -1,8 +1,47 @@
 $ErrorActionPreference = "Stop"
 
+# --- Проверка и установка Rust ---
+if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+    Write-Host "Rust не найден. Устанавливаю..." -ForegroundColor Yellow
+
+    $rustupInstaller = "$env:TEMP\rustup-init.exe"
+    Invoke-WebRequest -Uri "https://win.rustup.rs/x86_64" -OutFile $rustupInstaller
+    Start-Process -FilePath $rustupInstaller -ArgumentList "-y" -Wait
+
+    # Добавляем cargo в PATH текущей сессии
+    $env:PATH += ";$env:USERPROFILE\.cargo\bin"
+
+    if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+        Write-Host "Ошибка: cargo всё ещё не найден. Перезапусти PowerShell и запусти скрипт снова." -ForegroundColor Red
+        exit 1
+    }
+
+    Write-Host "Rust установлен успешно." -ForegroundColor Green
+}
+
+# --- Проверка и установка MSVC Build Tools (линковщик link.exe) ---
+$linkExe = Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio" -Recurse -Filter "link.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+if (-not $linkExe) {
+    Write-Host "MSVC Build Tools не найдены. Устанавливаю (это займёт несколько минут)..." -ForegroundColor Yellow
+
+    $vsInstaller = "$env:TEMP\vs_buildtools.exe"
+    Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vs_buildtools.exe" -OutFile $vsInstaller
+
+    Start-Process -FilePath $vsInstaller -ArgumentList `
+        "--quiet", "--wait", "--norestart", "--nocache",
+        "--installPath", "C:\BuildTools",
+        "--add", "Microsoft.VisualStudio.Workload.VCTools",
+        "--includeRecommended" -Wait
+
+    Write-Host "MSVC Build Tools установлены." -ForegroundColor Green
+} else {
+    Write-Host "MSVC линковщик найден: $($linkExe.FullName)" -ForegroundColor Green
+}
+
+# --- Инициализация проекта ---
 if (!(Test-Path "Cargo.toml")) { cargo init --name mouse_tool }
 
-$toml = @"
+$toml = @'
 [package]
 name = "mouse_tool"
 version = "0.1.0"
@@ -17,7 +56,7 @@ windows-sys = { version = "0.52.0", features = [
     "Win32_System_LibraryLoader",
     "Win32_Graphics_Gdi"
 ] }
-"@
+'@
 $toml | Out-File -FilePath "Cargo.toml" -Encoding ascii
 
 $rust = @'
@@ -140,7 +179,6 @@ fn main() {
             0, 0, h_inst, null_mut()
         );
 
-        // Регистрируем два устройства: Keyboard (1/6) и Consumer Control (0x0C/0x01)
         let mut rids = [
             RAWINPUTDEVICE {
                 usUsagePage: 0x01,
