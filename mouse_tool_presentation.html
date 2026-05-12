@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mouse Speed Tool — презентация</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f0f12;
+    color: #e8e8ec;
+    min-height: 100vh;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 80px 40px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid #2a2a3e;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(99,102,241,0.08) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    color: #a5b4fc;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    font-size: 52px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 18px;
+    color: #94a3b8;
+    max-width: 520px;
+    margin: 0 auto 40px;
+    line-height: 1.6;
+  }
+
+  .hero-demo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 16px 24px;
+    font-family: 'Consolas', monospace;
+    font-size: 14px;
+    color: #7dd3fc;
+  }
+
+  .hero-demo span { color: #86efac; }
+
+  .section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6366f1;
+    margin-bottom: 12px;
+  }
+
+  .section h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    letter-spacing: -0.5px;
+  }
+
+  /* How it works */
+  .steps {
+    display: grid;
+    gap: 16px;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    background: #17171f;
+    border: 1px solid #2a2a3e;
+    border-radius: 14px;
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+
+  .step:hover { border-color: #6366f1; }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    color: #a5b4fc;
+  }
+
+  .step-content h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #f1f5f9;
+  }
+
+  .step-content p {
+    font-size: 14px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  /* Speed demo */
+  .speed-demo {
+    background: #17171f;
+    border: 1px solid #2a2a3e;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+
+  .speed-bar-wrap {
+    margin: 24px 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .speed-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: #2a2a3e;
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .speed-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #a78bfa);
+    border-radius: 100px;
+    transition: width 0.3s ease;
+    width: 50%;
+  }
+
+  .speed-val {
+    font-size: 24px;
+    font-weight: 700;
+    color: #a5b4fc;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  .speed-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #475569;
+    margin-bottom: 24px;
+  }
+
+  .key-btns {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .key-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #1e1e2e;
+    border: 1px solid #3a3a50;
+    border-bottom: 3px solid #3a3a50;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: #cbd5e1;
+    transition: all 0.1s;
+    user-select: none;
+  }
+
+  .key-btn:active {
+    border-bottom-width: 1px;
+    transform: translateY(2px);
+  }
+
+  .key-btn.down { color: #f87171; }
+  .key-btn.up   { color: #86efac; }
+
+  /* Features grid */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+
+  .feature {
+    background: #17171f;
+    border: 1px solid #2a2a3e;
+    border-radius: 14px;
+    padding: 24px;
+  }
+
+  .feature-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+
+  .feature h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #f1f5f9;
+  }
+
+  .feature p {
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.6;
+  }
+
+  /* Console output */
+  .console {
+    background: #0d1117;
+    border: 1px solid #2a2a3e;
+    border-radius: 14px;
+    overflow: hidden;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+  }
+
+  .console-bar {
+    background: #161b22;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #2a2a3e;
+  }
+
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+
+  .console-body { padding: 20px; line-height: 2; }
+  .cl-gray  { color: #6b7280; }
+  .cl-green { color: #86efac; }
+  .cl-blue  { color: #7dd3fc; }
+  .cl-amber { color: #fcd34d; }
+  .cl-red   { color: #f87171; }
+
+  /* Install */
+  .install-box {
+    background: #17171f;
+    border: 1px solid #2a2a3e;
+    border-radius: 14px;
+    padding: 28px 32px;
+  }
+
+  .install-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid #1f1f2e;
+  }
+
+  .install-step:last-child { border-bottom: none; }
+
+  .install-n {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6366f1;
+    letter-spacing: 1px;
+    padding-top: 2px;
+    width: 24px;
+  }
+
+  .install-step p {
+    font-size: 14px;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+
+  .install-step code {
+    display: block;
+    margin-top: 6px;
+    background: #0d1117;
+    border: 1px solid #2a2a3e;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+    color: #7dd3fc;
+  }
+
+  /* divider */
+  .divider {
+    height: 1px;
+    background: #1f1f2e;
+    margin: 0 40px;
+  }
+
+  /* footer */
+  .footer {
+    text-align: center;
+    padding: 40px;
+    color: #334155;
+    font-size: 13px;
+    border-top: 1px solid #1f1f2e;
+    margin-top: 20px;
+  }
+
+  .tag {
+    display: inline-block;
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.2);
+    color: #818cf8;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">Утилита для Windows</div>
+  <h1>Mouse Speed Tool</h1>
+  <p>Регулировка скорости мыши клавишами громкости — без меню, без лишних движений.</p>
+  <div class="hero-demo">
+    <span>▶</span> powershell -ExecutionPolicy Bypass -File <span>mouse_tool.ps1</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section">
+  <div class="section-label">Принцип работы</div>
+  <h2>Как это устроено</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Перехват нажатий через Raw Input API</h3>
+        <p>Программа регистрирует скрытое окно и подписывается на сырые события клавиатуры (Usage Page 0x01/0x06) и Consumer Control (0x0C/0x01) — напрямую от драйвера, без захвата фокуса.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Двойное нажатие активирует режим</h3>
+        <p>Однократное нажатие Volume Up/Down — только «первый тап». Два нажатия подряд (менее 500 мс) активируют режим регулировки на 2 секунды.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Изменение скорости через SystemParametersInfo</h3>
+        <p>В активном режиме каждое нажатие вызывает <code style="font-family:Consolas;font-size:12px;color:#a5b4fc">SPI_SETMOUSESPEED</code> с сохранением в реестр (<code style="font-family:Consolas;font-size:12px;color:#a5b4fc">SPIF_UPDATEINIFILE</code>). Диапазон: 1–20.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h3>Атомарный таймер без потоков</h3>
+        <p>Два глобальных <code style="font-family:Consolas;font-size:12px;color:#a5b4fc">AtomicU64</code> хранят метки времени последнего нажатия и конец активного окна — race-free, без мьютексов.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- LIVE DEMO -->
+<div class="section">
+  <div class="section-label">Интерактивно</div>
+  <h2>Попробуй прямо здесь</h2>
+
+  <div class="speed-demo">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <span style="font-size:13px;color:#475569">Скорость мыши</span>
+      <span style="font-size:12px;color:#334155">Windows: 1–20</span>
+    </div>
+    <div class="speed-bar-wrap">
+      <div class="speed-bar-bg">
+        <div class="speed-bar-fill" id="bar"></div>
+      </div>
+      <div class="speed-val" id="val">10</div>
+    </div>
+    <div class="speed-labels"><span>Медленно (1)</span><span>Быстро (20)</span></div>
+
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <div style="font-size:12px;color:#334155;display:flex;align-items:center;gap:6px;margin-right:8px">
+        <span id="status-dot" style="width:8px;height:8px;border-radius:50%;background:#334155;display:inline-block;transition:background 0.3s"></span>
+        <span id="status-txt" style="color:#334155">Ожидание двойного нажатия</span>
+      </div>
+    </div>
+
+    <div class="key-btns">
+      <button class="key-btn down" onclick="tapKey(-1)">🔉 Volume Down</button>
+      <button class="key-btn up" onclick="tapKey(1)">🔊 Volume Up</button>
+    </div>
+  </div>
+
+  <p style="font-size:13px;color:#475569;text-align:center">
+    Нажми дважды (менее 0.5 с) чтобы активировать. Затем регулируй.
+  </p>
+</div>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<div class="section">
+  <div class="section-label">Возможности</div>
+  <h2>Ключевые особенности</h2>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-icon" style="background:rgba(99,102,241,0.1)">🎯</div>
+      <h3>Без фокуса окна</h3>
+      <p>Raw Input API работает даже когда активно другое приложение — игра, браузер, редактор.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon" style="background:rgba(134,239,172,0.08)">⚡</div>
+      <h3>Нативная скорость</h3>
+      <p>Компилируется в .exe без рантайма. Запуск мгновенный, потребление RAM менее 2 МБ.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon" style="background:rgba(251,191,36,0.08)">🛡️</div>
+      <h3>Защита от случайных нажатий</h3>
+      <p>Двойное нажатие за 500 мс — активация. Одно нажатие громкости ничего не меняет.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon" style="background:rgba(248,113,113,0.08)">💾</div>
+      <h3>Сохраняется в реестр</h3>
+      <p>Скорость записывается через <code style="font-family:Consolas;font-size:12px">SPIF_UPDATEINIFILE</code> — настройка сохраняется после перезагрузки.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon" style="background:rgba(125,211,252,0.08)">🔌</div>
+      <h3>Consumer Control</h3>
+      <p>Поддержка HID Usage Page 0x0C — медиаклавиши на клавиатурах и гарнитурах.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon" style="background:rgba(167,139,250,0.08)">📦</div>
+      <h3>Один .ps1 — всё</h3>
+      <p>Скрипт сам ставит Rust, MSVC Build Tools, компилирует и запускает. Нужен только PowerShell.</p>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- CONSOLE OUTPUT -->
+<div class="section">
+  <div class="section-label">Вывод программы</div>
+  <h2>Что видно в консоли</h2>
+  <div class="console">
+    <div class="console-bar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span style="font-size:12px;color:#475569;margin-left:8px">mouse_tool.exe</span>
+    </div>
+    <div class="console-body">
+      <div class="cl-green">=== MOUSE SPEED TOOL (RAW INPUT) STARTED ===</div>
+      <div class="cl-gray">Listening for volume keys (keyboard + consumer page)...</div>
+      <div class="cl-gray">Raw input registered successfully.</div>
+      <div></div>
+      <div class="cl-gray">RAW KEYBOARD: VK=174</div>
+      <div class="cl-blue">-&gt; First tap (tap again within 500ms)</div>
+      <div class="cl-gray">RAW KEYBOARD: VK=174</div>
+      <div class="cl-amber">*** DOUBLE TAP DETECTED! ADJUSTMENT ENABLED (2s) ***</div>
+      <div class="cl-gray">RAW KEYBOARD: VK=174</div>
+      <div class="cl-green">[ACTIVE MODE] Speed set to: 9</div>
+      <div class="cl-gray">RAW KEYBOARD: VK=174</div>
+      <div class="cl-green">[ACTIVE MODE] Speed set to: 8</div>
+      <div class="cl-gray">RAW KEYBOARD: VK=175</div>
+      <div class="cl-green">[ACTIVE MODE] Speed set to: 9</div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- INSTALL -->
+<div class="section">
+  <div class="section-label">Установка</div>
+  <h2>Запуск за три шага</h2>
+  <div class="install-box">
+    <div class="install-step">
+      <div class="install-n">01</div>
+      <div>
+        <p>Скачай скрипт <strong style="color:#f1f5f9">mouse_tool.ps1</strong></p>
+        <code>Invoke-WebRequest -Uri "https://raw.githubusercontent.com/dictovod/mouse_slowdown/main/mouse_tool.ps1" -OutFile mouse_tool.ps1</code>
+      </div>
+    </div>
+    <div class="install-step">
+      <div class="install-n">02</div>
+      <div>
+        <p>Запусти в PowerShell (Rust и Build Tools поставятся автоматически)</p>
+        <code>powershell -ExecutionPolicy Bypass -File mouse_tool.ps1</code>
+      </div>
+    </div>
+    <div class="install-step">
+      <div class="install-n">03</div>
+      <div>
+        <p>Нажми Volume Down/Up <strong style="color:#f1f5f9">дважды быстро</strong> для активации режима регулировки. Дальше нажимай по одному разу.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;display:flex;flex-wrap:wrap;gap:8px">
+    <span class="tag">Windows 10 / 11</span>
+    <span class="tag">Rust + windows-sys 0.52</span>
+    <span class="tag">Raw Input API</span>
+    <span class="tag">HID Consumer Control</span>
+    <span class="tag">MSVC toolchain</span>
+    <span class="tag">No admin required</span>
+  </div>
+</div>
+
+<div class="footer">
+  Mouse Speed Tool · github.com/dictovod/mouse_slowdown · Лицензия MIT
+</div>
+
+<script>
+  let speed = 10;
+  let lastTap = 0;
+  let activeUntil = 0;
+
+  function setSpeed(s) {
+    speed = Math.min(20, Math.max(1, s));
+    document.getElementById('val').textContent = speed;
+    document.getElementById('bar').style.width = ((speed - 1) / 19 * 100) + '%';
+  }
+
+  function setStatus(active) {
+    const dot = document.getElementById('status-dot');
+    const txt = document.getElementById('status-txt');
+    if (active) {
+      dot.style.background = '#86efac';
+      txt.style.color = '#86efac';
+      txt.textContent = 'Режим активен (2 сек)';
+    } else {
+      dot.style.background = '#334155';
+      txt.style.color = '#334155';
+      txt.textContent = 'Ожидание двойного нажатия';
+    }
+  }
+
+  function tapKey(dir) {
+    const now = Date.now();
+    if (now < activeUntil) {
+      setSpeed(speed + dir);
+      activeUntil = now + 2000;
+    } else {
+      if (now - lastTap < 500) {
+        activeUntil = now + 2000;
+        setStatus(true);
+        setTimeout(() => setStatus(false), 2000);
+      }
+    }
+    lastTap = now;
+  }
+
+  setSpeed(10);
+</script>
+</body>
+</html>
